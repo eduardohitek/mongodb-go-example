@@ -82,14 +82,7 @@ func ReturnAllHeroes(client *mongo.Client, filter bson.M) []*Hero {
 	if err != nil {
 		log.Fatal("Error on Finding all the documents", err)
 	}
-	for cur.Next(context.TODO()) {
-		var hero Hero
-		err = cur.Decode(&hero)
-		if err != nil {
-			log.Fatal("Error on Decoding the document", err)
-		}
-		heroes = append(heroes, &hero)
-	}
+	cur.All(context.TODO(), &heroes)
 	return heroes
 }
 
@@ -125,8 +118,8 @@ func RemoveOneHero(client *mongo.Client, filter bson.M) int64 {
 // UpdateHero update the info of a informed Hero
 func UpdateHero(client *mongo.Client, updatedData interface{}, filter bson.M) int64 {
 	collection := client.Database("civilact").Collection("heroes")
-	atualizacao := bson.D{{Key: "$set", Value: updatedData}}
-	updatedResult, err := collection.UpdateOne(context.TODO(), filter, atualizacao)
+	updateField := bson.D{{Key: "$set", Value: updatedData}}
+	updatedResult, err := collection.UpdateOne(context.TODO(), filter, updateField)
 	if err != nil {
 		log.Fatal("Error on updating one Hero", err)
 	}
